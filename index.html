@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mouse Circadian Rhythm Visualization</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/estrus-styles.css">
+    <!-- D3.js library -->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Mouse Circadian Rhythm Visualization</h1>
+            <p>Explore activity and temperature patterns in mice throughout the day</p>
+        </div>
+    </header>
+    
+    <section class="intro">
+        <div class="container">
+            <h2>Understanding Circadian Rhythms</h2>
+            <p>
+                Circadian rhythms are 24-hour biological cycles that regulate various physiological processes 
+                including sleep-wake patterns, hormone release, body temperature, and metabolism. These internal 
+                clocks are synchronized with environmental cues, primarily light and dark cycles.
+            </p>
+            <p>
+                This interactive visualization allows you to explore how activity levels and body temperature
+                fluctuate in mice throughout a 24-hour period, demonstrating clear circadian patterns.
+            </p>
+            <div class="key-insight">
+                <p>
+                    Mice are nocturnal animals, with peak activity occurring during the dark phase.
+                    Their body temperature also follows a distinct circadian pattern, with higher temperatures 
+                    during their active phase and lower temperatures during rest.
+                </p>
+            </div>
+        </div>
+    </section>
+    
+    <div class="container">
+        <!-- Individual Mouse Visualization -->
+        <div class="visualization-container">
+            <h2>Individual Mouse Activity Pattern</h2>
+            
+            <div class="controls">
+                <select id="mouseSelect" aria-label="Select mouse">
+                    <option value="f1">Female Mouse 1</option>
+                    <option value="m1">Male Mouse 1</option>
+                </select>
+                
+                <select id="daySelect" aria-label="Select day">
+                    <option value="1">Day 1</option>
+                    <option value="2">Day 2</option>
+                    <option value="3">Day 3</option>
+                </select>
+                
+                <button id="viewDataBtn">View Data</button>
+            </div>
+            
+            <div id="activityChart" class="chart"></div>
+            
+            <h3>Interactive Mouse Simulation</h3>
+            <p>Adjust the time slider to see changes throughout the day</p>
+            
+            <div class="slider-container">
+                <input type="range" min="0" max="1439" value="0" class="slider" id="timeSlider">
+                <div id="timeDisplay" class="time-display">Time: 00:00</div>
+            </div>
+            
+            <div class="light-indicator">
+                <div id="lightIcon" class="light-icon light-off"></div>
+                <div id="lightStatus">Light is OFF</div>
+            </div>
+            
+            <div class="mouse-body">
+                <div id="mouseTemp" class="mouse-temp"></div>
+                <div class="mouse-outline"></div>
+                <div class="mouse-ear left-ear"></div>
+                <div class="mouse-ear right-ear"></div>
+                <div class="mouse-eye left-eye"></div>
+                <div class="mouse-eye right-eye"></div>
+                <div class="mouse-nose"></div>
+                <div class="mouse-tail"></div>
+            </div>
+            
+            <h4>Current Activity Level</h4>
+            <div class="activity-meter">
+                <div id="activityLevel" class="activity-level" style="width: 20%"></div>
+            </div>
+            
+            <h4>Body Temperature</h4>
+            <div id="bodyTempValue" class="stat-value">37.0°C</div>
+        </div>
+        
+        <!-- Gender Comparison -->
+        <div class="visualization-container">
+            <h2>Gender Comparison</h2>
+            
+            <div class="gender-comparison">
+                <div class="gender-card male-card">
+                    <h3>Male Mice</h3>
+                    <p>Average Activity Level</p>
+                    <div class="stat-value">22.6</div>
+                    <p>Average Body Temperature</p>
+                    <div class="stat-value">36.8°C</div>
+                </div>
+                
+                <div class="gender-card female-card">
+                    <h3>Female Mice</h3>
+                    <p>Average Activity Level</p>
+                    <div class="stat-value">15.1</div>
+                    <p>Average Body Temperature</p>
+                    <div class="stat-value">37.3°C</div>
+                </div>
+            </div>
+            
+            <p>
+                Male and female mice show different activity patterns and physiological responses. 
+                Males typically exhibit higher overall activity levels, while females maintain slightly higher 
+                body temperatures on average.
+            </p>
+        </div>
+        
+        <!-- Light vs Dark Period Comparison -->
+        <div class="visualization-container">
+            <h2>Light vs Dark Period Comparison</h2>
+            
+            <p class="explanation">
+                Environmental light cycles have a profound impact on mouse behavior and physiology. 
+                Below you can see how activity levels and body temperature differ between the light and dark periods.
+            </p>
+            
+            <div class="two-column">
+                <div id="lightDarkActivityChart" class="chart"></div>
+                <div id="lightDarkTempChart" class="chart"></div>
+            </div>
+        </div>
+        
+        <!-- Estrus Cycle Comparison Section -->
+        <div class="visualization-container">
+            <h2>Female Mice Estrus Cycle Comparison</h2>
+            
+            <p class="explanation">
+                Female mice experience estrus cycles (similar to menstrual cycles in humans) that affect their physiology and behavior. This section allows you to explore how activity patterns and body temperature change during the estrus cycle.
+            </p>
+            
+            <div class="controls">
+                <button id="activityModeBtn" class="mode-btn active">Activity</button>
+                <button id="temperatureModeBtn" class="mode-btn">Temperature</button>
+            </div>
+
+            <div class="filter-controls">
+                <span class="filter-label">Show data for:</span>
+                <div class="filter-options">
+                  <button id="bothDataBtn" class="filter-btn active">Both</button>
+                  <button id="estrusOnlyBtn" class="filter-btn">Estrus Only</button>
+                  <button id="nonEstrusOnlyBtn" class="filter-btn">Non-Estrus Only</button>
+                </div>
+            </div>
+            
+            <div class="interactive-note">
+                Hover over data points to see exact values. Compare the 24-hour patterns during estrus and non-estrus periods.
+            </div>
+            
+            <!-- 24-hour Comparison Chart -->
+            <div id="estrusComparisonChart" class="chart"></div>
+            
+            <h3>Estrus vs Non-Estrus Summary</h3>
+            <p>Comparing average activity levels and body temperatures between estrus and non-estrus phases.</p>
+            
+            <!-- Summary Bar Charts -->
+            <div class="two-column">
+                <div id="estrusActivityChart" class="chart"></div>
+                <div id="estrusTempChart" class="chart"></div>
+            </div>
+            
+            <div class="key-insight">
+                <h3>Key Insights</h3>
+                <p>
+                    Female mice show significant physiological changes during their estrus cycle:
+                </p>
+                <ul>
+                    <li>During estrus, females typically show <span class="highlight">higher overall activity levels</span>, especially during the active dark phase</li>
+                    <li>Body temperature tends to be <span class="highlight">slightly elevated during estrus</span>, which is related to hormonal changes</li>
+                    <li>The most pronounced activity differences occur during the first half of the dark phase (hours 0-6)</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        <div class="container">
+        </div>
+    </footer>
+    
+    <!-- JavaScript files -->
+    <script src="js/data.js"></script>
+    <script src="js/charts.js"></script>
+    <script src="js/mouseSimulation.js"></script>
+    <script src="js/estrusModule.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
