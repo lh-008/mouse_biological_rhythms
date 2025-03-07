@@ -103,40 +103,48 @@
         try {
             // Get unique mouse IDs
             const mouseIds = await window.dataModule.getUniqueMouseIds();
-            
+        
             // Clear dropdown
             mouseSelect.innerHTML = '';
-            
-            // Add female mice first
-            const femaleMice = mouseIds.filter(id => id.startsWith('f')).sort();
-            femaleMice.forEach(id => {
-                const option = document.createElement('option');
-                option.value = id;
-                option.textContent = `Female Mouse ${id.substring(1)}`;
-                mouseSelect.appendChild(option);
+        
+            // Helper function to sort mouse IDs numerically
+            const sortMouseIds = (ids) => {
+                return ids.sort((a, b) => {
+                    const numA = parseInt(a.substring(1));
+                    const numB = parseInt(b.substring(1));
+                    return numA - numB;
             });
-            
-            // Add male mice
-            const maleMice = mouseIds.filter(id => id.startsWith('m')).sort();
-            maleMice.forEach(id => {
-                const option = document.createElement('option');
-                option.value = id;
-                option.textContent = `Male Mouse ${id.substring(1)}`;
-                mouseSelect.appendChild(option);
-            });
-            
-            // Set default selection
-            mouseSelect.value = currentMouseId;
+        };
+        
+        const femaleMice = sortMouseIds(mouseIds.filter(id => id.startsWith('f')));
+        femaleMice.forEach(id => {
+            const option = document.createElement('option');
+            option.value = id;
+            option.textContent = `Female Mouse ${id.substring(1)}`;
+            mouseSelect.appendChild(option);
+        });
+        
+        // Add male mice (sorted numerically)
+        const maleMice = sortMouseIds(mouseIds.filter(id => id.startsWith('m')));
+        maleMice.forEach(id => {
+            const option = document.createElement('option');
+            option.value = id;
+            option.textContent = `Male Mouse ${id.substring(1)}`;
+            mouseSelect.appendChild(option);
+        });
+        
+        // Set default selection
+        mouseSelect.value = currentMouseId;
         } catch (error) {
-            console.error("Error populating mouse dropdown:", error);
-            
-            // Add default options if loading fails
-            mouseSelect.innerHTML = `
-                <option value="f1">Female Mouse 1</option>
-                <option value="f2">Female Mouse 2</option>
-                <option value="m1">Male Mouse 1</option>
-                <option value="m2">Male Mouse 2</option>
-            `;
+        console.error("Error populating mouse dropdown:", error);
+        
+        // Add default options if loading fails
+        mouseSelect.innerHTML = `
+            <option value="f1">Female Mouse 1</option>
+            <option value="f2">Female Mouse 2</option>
+            <option value="m1">Male Mouse 1</option>
+            <option value="m2">Male Mouse 2</option>
+        `;
         }
     }
     
