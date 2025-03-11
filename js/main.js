@@ -5,49 +5,52 @@
     
     const mouseSelect = document.getElementById('mouseSelect');
     const daySelect = document.getElementById('daySelect');
-    const viewDataBtn = document.getElementById('viewDataBtn');
     
-    // Initialize the application
     async function init() {
         try {    
-            // Initialize mouse simulation
-            window.mouseSimulation.init();
-            
-            // Preload data
-            await window.dataModule.loadAllData();
-            
-            // Update mouse selection dropdown with available mice
-            await populateMouseDropdown();
-            
-            // Update day selection dropdown with available days
-            await populateDayDropdown(currentMouseId);
-            
-            // Update gender stats
-            await window.chartsModule.updateGenderCards();
-            
-            // Create light/dark comparison charts
-            window.chartsModule.createLightDarkCharts();
-            
-            // Initialize estrus cycle visualization
-            initEstrusVisualization();
-            
-            // Initial data load for visualization
-            await loadData(currentMouseId, currentDay);
-            
-            // Set up event listeners
-            setupEventListeners();
-            
-            // Handle window resize
-            window.addEventListener('resize', handleResize);
-            
-            // Hide loading message
-            showLoading(false);
-        } catch (error) {
-            console.error("Error initializing application:", error);
-            showLoading(false);
-            showError("Error loading data. Please try refreshing the page.");
+        // Initialize mouse simulation
+        window.mouseSimulation.init();
+        
+        // Preload data
+        await window.dataModule.loadAllData();
+        
+        // Update mouse selection dropdown with available mice
+        await populateMouseDropdown();
+        
+        // Update day selection dropdown with available days
+        await populateDayDropdown(currentMouseId);
+        
+        // Update gender stats
+        await window.chartsModule.updateGenderCards();
+        
+        // Create light/dark comparison charts
+        window.chartsModule.createLightDarkCharts();
+        
+        // Initialize estrus cycle visualization
+        initEstrusVisualization();
+        
+        // Initialize mouse comparison module if available
+        if (window.mouseComparisonModule) {
+            window.mouseComparisonModule.init();
         }
+        
+        // Initial data load for visualization
+        await loadData(currentMouseId, currentDay);
+        
+        // Set up event listeners
+        setupEventListeners();
+        
+        // Handle window resize
+        window.addEventListener('resize', handleResize);
+        
+        // Hide loading message
+        showLoading(false);
+    } catch (error) {
+        console.error("Error initializing application:", error);
+        showLoading(false);
+        showError("Error loading data. Please try refreshing the page.");
     }
+}
     
     // Set up event listeners for controls
     function setupEventListeners() {
@@ -63,15 +66,10 @@
             currentDay = this.value;
             loadData(currentMouseId, currentDay);
         });
-        
-        // View data button
-        viewDataBtn.addEventListener('click', function() {
-            loadData(currentMouseId, currentDay, true);
-        });
     }
     
     // Load data for the selected mouse and day
-    async function loadData(mouseId, day, showAlert = false) {
+    async function loadData(mouseId, day) {
         try {
             // Show loading indicator
             showLoading(true, "Updating visualization...");
@@ -84,13 +82,6 @@
             
             // Hide loading indicator
             showLoading(false);
-            
-            // Show success message if requested
-            if (showAlert && hourlyData.length > 0) {
-                const mouseType = mouseId.startsWith('f') ? 'Female' : 'Male';
-                const mouseNumber = mouseId.substring(1);
-                alert(`Data loaded for ${mouseType} Mouse ${mouseNumber} on Day ${day}`);
-            }
         } catch (error) {
             console.error("Error loading data:", error);
             showLoading(false);
@@ -103,52 +94,53 @@
         try {
             // Get unique mouse IDs
             const mouseIds = await window.dataModule.getUniqueMouseIds();
-        
+            
             // Clear dropdown
             mouseSelect.innerHTML = '';
-        
+            
             // Helper function to sort mouse IDs numerically
             const sortMouseIds = (ids) => {
                 return ids.sort((a, b) => {
+                    // Extract the numeric part after the first character (f or m)
                     const numA = parseInt(a.substring(1));
                     const numB = parseInt(b.substring(1));
                     return numA - numB;
+                });
+            };
+            
+            // Add female mice first (sorted numerically)
+            const femaleMice = sortMouseIds(mouseIds.filter(id => id.startsWith('f')));
+            femaleMice.forEach(id => {
+                const option = document.createElement('option');
+                option.value = id;
+                option.textContent = `Female Mouse ${id.substring(1)}`;
+                mouseSelect.appendChild(option);
             });
-        };
-        
-        const femaleMice = sortMouseIds(mouseIds.filter(id => id.startsWith('f')));
-        femaleMice.forEach(id => {
-            const option = document.createElement('option');
-            option.value = id;
-            option.textContent = `Female Mouse ${id.substring(1)}`;
-            mouseSelect.appendChild(option);
-        });
-        
-        // Add male mice (sorted numerically)
-        const maleMice = sortMouseIds(mouseIds.filter(id => id.startsWith('m')));
-        maleMice.forEach(id => {
-            const option = document.createElement('option');
-            option.value = id;
-            option.textContent = `Male Mouse ${id.substring(1)}`;
-            mouseSelect.appendChild(option);
-        });
-        
-        // Set default selection
-        mouseSelect.value = currentMouseId;
+            
+            // Add male mice (sorted numerically)
+            const maleMice = sortMouseIds(mouseIds.filter(id => id.startsWith('m')));
+            maleMice.forEach(id => {
+                const option = document.createElement('option');
+                option.value = id;
+                option.textContent = `Male Mouse ${id.substring(1)}`;
+                mouseSelect.appendChild(option);
+            });
+            
+            // Set default selection
+            mouseSelect.value = currentMouseId;
         } catch (error) {
-        console.error("Error populating mouse dropdown:", error);
-        
-        // Add default options if loading fails
-        mouseSelect.innerHTML = `
-            <option value="f1">Female Mouse 1</option>
-            <option value="f2">Female Mouse 2</option>
-            <option value="m1">Male Mouse 1</option>
-            <option value="m2">Male Mouse 2</option>
-        `;
+            console.error("Error populating mouse dropdown:", error);
+            
+            // Add default options if loading fails
+            mouseSelect.innerHTML = `
+                <option value="f1">Female Mouse 1</option>
+                <option value="f2">Female Mouse 2</option>
+                <option value="m1">Male Mouse 1</option>
+                <option value="m2">Male Mouse 2</option>
+            `;
         }
     }
     
-    // Populate the day selection dropdown
     async function populateDayDropdown(mouseId) {
         try {
             // Get available days for the selected mouse
@@ -249,18 +241,28 @@
         }
     }
     
-    // Handle window resize
+    // Handle window resize - Complete, merged version
     function handleResize() {
         // Redraw charts when window is resized
-        window.chartsModule.createActivityChart();
+        window.chartsModule.createSeparateCharts();
         window.chartsModule.createLightDarkCharts();
-        
+    
         // Redraw estrus charts
         const activeBtn = document.querySelector('.mode-btn.active');
         const dataType = activeBtn && activeBtn.id === 'temperatureModeBtn' ? 'temperature' : 'activity';
-        
+    
         window.estrusModule.createEstrusComparisonChart(dataType);
         window.estrusModule.createEstrusBarCharts();
+    
+        // Redraw comparison charts if they're visible
+        if (document.getElementById('comparisonCharts') && 
+            document.getElementById('comparisonCharts').style.display !== 'none') {
+            // Trigger compare button click to refresh charts
+            const compareButton = document.getElementById('compareButton');
+            if (compareButton) {
+                compareButton.click();
+            }
+        }
     }
     
     // Show/hide loading indicator
@@ -316,15 +318,12 @@
             errorEl.style.fontWeight = 'bold';
         }
         
-        // Update content
         errorEl.textContent = message;
         
-        // Auto-hide after 5 seconds
         setTimeout(() => {
             errorEl.style.display = 'none';
         }, 5000);
     }
     
-    // Initialize on DOM content loaded
     document.addEventListener('DOMContentLoaded', init);
 })();
