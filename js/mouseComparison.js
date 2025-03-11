@@ -512,7 +512,8 @@ const mouseComparisonModule = (function() {
     // Helper function to add a line with points
     function addLineWithPoints(svg, data, x, y, dataKey, color, className, tooltip) {
         // Add line with smoother curve
-        svg.append("path")
+        // Add line with smoother curve and animation
+        const linePath = svg.append("path")
             .datum(data)
             .attr("class", `${className}-line`)
             .attr("fill", "none")
@@ -524,7 +525,19 @@ const mouseComparisonModule = (function() {
                 .curve(d3.curveMonotoneX)
                 .x(d => x(d.hour))
                 .y(d => y(d[dataKey]))
-            );
+            )
+            .attr("stroke-dasharray", function() {
+                return this.getTotalLength();
+            })
+            .attr("stroke-dashoffset", function() {
+                return this.getTotalLength();
+            });
+            
+        // Animate the line drawing
+        linePath.transition()
+            .duration(1500)
+            .ease(d3.easeLinear)
+            .attr("stroke-dashoffset", 0);
         
         // Add data points
         svg.selectAll(`.${className}-point`)
