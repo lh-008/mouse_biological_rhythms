@@ -277,8 +277,8 @@ const estrusModule = (function() {
             ? (dataType === 'activity' ? 'estrusActivity' : 'estrusTemp') 
             : (dataType === 'activity' ? 'nonEstrusActivity' : 'nonEstrusTemp');
         
-        // Add line with smoother curve
-        svg.append("path")
+        // Add line with smoother curve and animation
+        const linePath = svg.append("path")
             .datum(hourlyData)
             .attr("class", `${type}-line`)
             .attr("fill", "none")
@@ -290,7 +290,19 @@ const estrusModule = (function() {
                 .curve(d3.curveMonotoneX)
                 .x(d => x(d.hour))
                 .y(d => y(d[valueField]))
-            );
+            )
+            .attr("stroke-dasharray", function() {
+                return this.getTotalLength();
+            })
+            .attr("stroke-dashoffset", function() {
+                return this.getTotalLength();
+            });
+            
+        // Animate the line drawing
+        linePath.transition()
+            .duration(1500)
+            .ease(d3.easeLinear)
+            .attr("stroke-dashoffset", 0);
         
         // Add data points
         svg.selectAll(`.${type}-dot`)
