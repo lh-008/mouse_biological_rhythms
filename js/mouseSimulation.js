@@ -3,9 +3,7 @@ const mouseSimulation = (function() {
     let slider, timeDisplay, lightIcon, lightStatus, activityLevel, bodyTempValue, mouseTemp;
     let currentData = [];
     
-    // Initialize the simulation
     function init() {
-        // Get DOM elements
         slider = document.getElementById('timeSlider');
         timeDisplay = document.getElementById('timeDisplay');
         lightIcon = document.getElementById('lightIcon');
@@ -14,11 +12,10 @@ const mouseSimulation = (function() {
         bodyTempValue = document.getElementById('bodyTempValue');
         mouseTemp = document.getElementById('mouseTemp');
         
-        // Set up event listeners
         setupTimeSlider();
     }
     
-    // Set up time slider functionality
+    // Time slider functionality
     function setupTimeSlider() {
         slider.addEventListener('input', function() {
             updateSimulation(parseInt(this.value));
@@ -40,7 +37,7 @@ const mouseSimulation = (function() {
         // Get current data
         currentData = window.chartsModule.getCurrentData();
         
-        // If no data available, show default values
+        // Default values if no data
         if (!currentData || currentData.length === 0) {
             lightIcon.className = 'light-icon light-off';
             lightStatus.textContent = 'Light is OFF';
@@ -53,7 +50,7 @@ const mouseSimulation = (function() {
         // Get data for current hour
         const hourData = currentData[hour];
         
-        // Update light indicator
+        // Light indicator
         if (hourData.isLightOn) {
             lightIcon.className = 'light-icon light-on';
             lightStatus.textContent = 'Light is ON';
@@ -62,19 +59,35 @@ const mouseSimulation = (function() {
             lightStatus.textContent = 'Light is OFF';
         }
         
-        // Calculate a percentage of activity for the meter (max activity is around 40)
-        const activityPercentage = Math.min(100, (hourData.avgActivity / 40) * 100);
-        activityLevel.style.width = `${activityPercentage}%`;
+        // Find the maximum activity value in the current data set
+        const maxCurrentActivity = Math.max(...currentData.map(d => d.avgActivity));
+        let activityPercentage;
+        if (maxCurrentActivity <= 0) {
+            activityPercentage = 0;
+        } else {
+            activityPercentage = (hourData.avgActivity / maxCurrentActivity) * 100;
+        }
         
-        // Update temperature display
+        const displayPercentage = hourData.avgActivity > 0 && activityPercentage < 5 ? 5 : activityPercentage;
+        activityLevel.style.transition = 'width 0.5s cubic-bezier(0.22, 1, 0.36, 1)';
+        activityLevel.style.width = `${displayPercentage}%`;
+        
         bodyTempValue.textContent = `${hourData.avgTemp.toFixed(1)}°C`;
         
         // Update mouse temperature visualization
-        const tempNormalized = (hourData.avgTemp - 35.5) / 3.5; // Normalize between 0 and 1
+        const tempNormalized = (hourData.avgTemp - 35.5) / 3.5;
         mouseTemp.style.opacity = 0.1 + tempNormalized * 0.7;
+        
+        // Update color of activity based on level
+        if (activityPercentage > 70) {
+            activityLevel.style.background = 'linear-gradient(to right, #3498db, #e74c3c)'; // High activity
+        } else if (activityPercentage > 30) {
+            activityLevel.style.background = 'linear-gradient(to right, #3498db, #2ecc71)'; // Medium activity
+        } else {
+            activityLevel.style.background = 'linear-gradient(to right, #3498db, #3498db)'; // Low activity
+        }
     }
     
-    // Update the simulation with new data
     function updateData(newData) {
         if (newData && newData.length > 0) {
             updateSimulation(parseInt(slider.value));

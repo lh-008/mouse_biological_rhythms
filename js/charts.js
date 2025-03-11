@@ -175,7 +175,6 @@ const chartsModule = (function() {
             .style("font-weight", "bold")
             .text(yAxisLabel);
         
-        // Add line with smoother curve
         // Add line with smoother curve and animation
         const linePath = svg.append("path")
             .datum(data)
