@@ -1,5 +1,4 @@
 const mouseSimulation = (function() {
-    // DOM elements
     let slider, timeDisplay, lightIcon, lightStatus, activityLevel, bodyTempValue, mouseTemp;
     let currentData = [];
     
