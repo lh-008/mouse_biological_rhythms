@@ -1,5 +1,4 @@
 const mouseComparisonModule = (function() {
-    // DOM elements
     let femaleMouseSelect, maleMouseSelect, comparisonDaySelect, compareButton;
     let comparisonCharts, comparisonMessage;
     
@@ -91,10 +90,14 @@ const mouseComparisonModule = (function() {
         // Mouse selection change events
         femaleMouseSelect.addEventListener('change', function() {
             updateComparisonDays(this.value, maleMouseSelect.value);
+            // Reset gender cards to population averages when changing mice
+            resetGenderCardsToAverages();
         });
         
         maleMouseSelect.addEventListener('change', function() {
             updateComparisonDays(femaleMouseSelect.value, this.value);
+            // Reset gender cards to population averages when changing mice
+            resetGenderCardsToAverages();
         });
         
         // Compare button click - Ensure we clear any prior chart data and properly reset display
@@ -121,6 +124,8 @@ const mouseComparisonModule = (function() {
                 }, 50);
             } else {
                 comparisonMessage.textContent = "Please select both mice and a day to compare.";
+                // Reset to population averages if comparison fails
+                resetGenderCardsToAverages();
             }
         });
     }
@@ -168,9 +173,11 @@ const mouseComparisonModule = (function() {
                 throw new Error("Failed to load data for one or both mice");
             }
             
-            // Process data into hourly averages
             const femaleHourlyData = window.dataModule.calculateHourlyAverages(femaleMouseData);
             const maleHourlyData = window.dataModule.calculateHourlyAverages(maleMouseData);
+            
+            // Update the gender comparison cards with the specific mice data
+            updateGenderCardsForComparison(femaleMouseData, maleMouseData, femaleMouseId, maleMouseId, day);
             
             // Create comparison charts
             createComparisonCharts(femaleHourlyData, maleHourlyData, femaleMouseId, maleMouseId);
@@ -183,7 +190,131 @@ const mouseComparisonModule = (function() {
             comparisonMessage.style.display = 'block';
             comparisonMessage.textContent = "Error loading comparison data. Please try again.";
             comparisonCharts.style.display = 'none';
+            // Reset to population averages if comparison fails
+            resetGenderCardsToAverages();
         }
+    }
+    
+    // Calculate average stats for a specific mouse data set
+    function calculateMouseStats(mouseData) {
+        if (!mouseData || mouseData.length === 0) {
+            return { avgActivity: 0, avgTemp: 0 };
+        }
+        
+        // Calculate the average activity and temperature
+        const avgActivity = mouseData.reduce((sum, d) => sum + d.Activity, 0) / mouseData.length;
+        const avgTemp = mouseData.reduce((sum, d) => sum + d.Body_Temperature, 0) / mouseData.length;
+        
+        return { avgActivity, avgTemp };
+    }
+    
+    // Update gender cards to show data for the specific compared mice
+    function updateGenderCardsForComparison(femaleData, maleData, femaleId, maleId, day) {
+        try {
+            // Calculate stats for each mouse
+            const femaleStats = calculateMouseStats(femaleData);
+            const maleStats = calculateMouseStats(maleData);
+            
+            // Update the card titles to show which mice are being compared
+            const femaleCardTitle = document.querySelector('.female-card h3');
+            const maleCardTitle = document.querySelector('.male-card h3');
+            
+            if (femaleCardTitle) {
+                femaleCardTitle.textContent = `Female Mouse ${femaleId.substring(1)}`;
+                femaleCardTitle.title = `Day ${day}`;
+            }
+            
+            if (maleCardTitle) {
+                maleCardTitle.textContent = `Male Mouse ${maleId.substring(1)}`;
+                maleCardTitle.title = `Day ${day}`;
+            }
+            
+            // Update the stat values
+            document.querySelector('.male-card .stat-value:nth-of-type(1)').textContent = maleStats.avgActivity.toFixed(1);
+            document.querySelector('.male-card .stat-value:nth-of-type(2)').textContent = maleStats.avgTemp.toFixed(1) + '°C';
+            
+            document.querySelector('.female-card .stat-value:nth-of-type(1)').textContent = femaleStats.avgActivity.toFixed(1);
+            document.querySelector('.female-card .stat-value:nth-of-type(2)').textContent = femaleStats.avgTemp.toFixed(1) + '°C';
+            
+            // Add a visual indicator that we're viewing specific mice data
+            document.querySelector('.gender-comparison').classList.add('comparing-specific-mice');
+            
+            // Add a small note about the data being for specific mice
+            addComparisonNote(femaleId, maleId, day);
+            
+        } catch (error) {
+            console.error("Error updating gender cards for comparison:", error);
+            // If there's an error, reset to population averages
+            resetGenderCardsToAverages();
+        }
+    }
+    
+    // Add a small note below the gender cards to indicate we're viewing compared mice
+    function addComparisonNote(femaleId, maleId, day) {
+        // Remove any existing note
+        const existingNote = document.getElementById('comparison-note');
+        if (existingNote) {
+            existingNote.remove();
+        }
+        
+        // Create a new note
+        const noteElement = document.createElement('div');
+        noteElement.id = 'comparison-note';
+        noteElement.style.textAlign = 'center';
+        noteElement.style.fontSize = '0.9rem';
+        noteElement.style.color = '#666';
+        noteElement.style.marginTop = '1rem';
+        noteElement.style.marginBottom = '1rem';
+        noteElement.style.fontStyle = 'italic';
+        noteElement.textContent = `Showing data for selected mice on Day ${day}. `;
+        
+        // Add a reset link
+        const resetLink = document.createElement('a');
+        resetLink.href = '#';
+        resetLink.textContent = 'View population averages';
+        resetLink.style.color = '#3498db';
+        resetLink.style.textDecoration = 'none';
+        resetLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            resetGenderCardsToAverages();
+        });
+        
+        noteElement.appendChild(resetLink);
+        
+        // Add the note after the gender comparison div
+        const genderComparison = document.querySelector('.gender-comparison');
+        if (genderComparison) {
+            genderComparison.parentNode.insertBefore(noteElement, genderComparison.nextSibling);
+        }
+    }
+    
+    // Reset gender cards to show population averages
+    function resetGenderCardsToAverages() {
+        // Update titles
+        const femaleCardTitle = document.querySelector('.female-card h3');
+        const maleCardTitle = document.querySelector('.male-card h3');
+        
+        if (femaleCardTitle) {
+            femaleCardTitle.textContent = 'Female Mice';
+            femaleCardTitle.removeAttribute('title');
+        }
+        
+        if (maleCardTitle) {
+            maleCardTitle.textContent = 'Male Mice';
+            maleCardTitle.removeAttribute('title');
+        }
+        
+        // Remove the specific mice class
+        document.querySelector('.gender-comparison').classList.remove('comparing-specific-mice');
+        
+        // Remove any comparison note
+        const existingNote = document.getElementById('comparison-note');
+        if (existingNote) {
+            existingNote.remove();
+        }
+        
+        // Call the original update function to reset to population averages
+        window.chartsModule.updateGenderCards();
     }
     
     // Create comparison charts for activity and temperature
@@ -511,7 +642,6 @@ const mouseComparisonModule = (function() {
     
     // Helper function to add a line with points
     function addLineWithPoints(svg, data, x, y, dataKey, color, className, tooltip) {
-        // Add line with smoother curve
         // Add line with smoother curve and animation
         const linePath = svg.append("path")
             .datum(data)
@@ -585,7 +715,8 @@ const mouseComparisonModule = (function() {
     
     return {
         init,
-        compareMice
+        compareMice,
+        resetGenderCardsToAverages
     };
 })();
 
