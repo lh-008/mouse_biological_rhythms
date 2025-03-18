@@ -48,7 +48,7 @@ const chartsModule = (function() {
             yAxisConfig: {
                 min: 35.0,
                 max: 39.0,
-                padding: 0.1    // 10% padding
+                padding: 0.1
             }
         });
     }
@@ -415,8 +415,8 @@ const chartsModule = (function() {
             .attr("class", "activity-bar")
             .attr("x", d => activityX(d.condition))
             .attr("width", activityX.bandwidth())
-            .attr("y", activityHeight) // Start from bottom for animation
-            .attr("height", 0)         // Start with height 0 for animation
+            .attr("y", activityHeight)
+            .attr("height", 0)
             .attr("fill", (d, i) => i === 0 ? "#34495e" : "url(#activity-gradient)")
             .attr("rx", 5)
             .attr("ry", 5)
@@ -500,7 +500,7 @@ const chartsModule = (function() {
         
         // Y scale for temperature
         const tempY = d3.scaleLinear()
-            .domain([0, d3.max(data, d => d.avgTemp) * 1.05]) // Start from 0, add 5% padding at top
+            .domain([0, d3.max(data, d => d.avgTemp) * 1.05])
             .range([tempHeight, 0]);
         
         // Add gridlines
@@ -565,8 +565,8 @@ const chartsModule = (function() {
             .attr("class", "temp-bar")
             .attr("x", d => tempX(d.condition))
             .attr("width", tempX.bandwidth())
-            .attr("y", tempHeight) // Start from bottom for animation
-            .attr("height", 0)     // Start with height 0 for animation
+            .attr("y", tempHeight)
+            .attr("height", 0)
             .attr("fill", (d, i) => i === 0 ? "#34495e" : "url(#temp-gradient)")
             .attr("rx", 5)
             .attr("ry", 5)
@@ -652,7 +652,6 @@ const chartsModule = (function() {
             return hourlyAverages;
         } catch (error) {
             console.error("Error updating charts:", error);
-            // Return empty array to indicate error
             return [];
         }
     }
