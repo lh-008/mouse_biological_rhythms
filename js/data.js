@@ -1,5 +1,4 @@
 const dataModule = (function() {
-    // Light-dark comparison data (will be calculated from actual data)
     let lightDarkData = [
         {condition: "Light Off (Night)", avgActivity: 0, avgTemp: 0},
         {condition: "Light On (Day)", avgActivity: 0, avgTemp: 0}
