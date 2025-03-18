@@ -1,4 +1,3 @@
-// scrollytelling.js
 document.addEventListener('DOMContentLoaded', function() {
     // Get all sections for scrollytelling
     const sections = document.querySelectorAll('.scrolly-section, .fullscreen-section');
@@ -30,7 +29,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const sectionHeight = section.offsetHeight;
             const sectionId = section.getAttribute('id');
             
-            // Calculate if we're in this section
+            // Check if we're in this section
             if (scrollPosition >= sectionTop - window.innerHeight/2 && 
                 scrollPosition < sectionTop + sectionHeight - window.innerHeight/2) {
                 
@@ -114,6 +113,6 @@ document.addEventListener('DOMContentLoaded', function() {
         updateOnScroll();
     }
     
-    // Start initialization
+    // initialization
     init();
 });

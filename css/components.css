@@ -485,3 +485,46 @@
     margin-bottom: 40px;
 }
 
+#comparison-note {
+    text-align: center;
+    font-size: 0.9rem;
+    color: #666;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    font-style: italic;
+    transition: all 0.3s ease;
+}
+
+#comparison-note a {
+    color: #3498db;
+    text-decoration: none;
+}
+
+#comparison-note a:hover {
+    text-decoration: underline;
+}
+
+.gender-comparison.comparing-specific-mice .gender-card {
+    box-shadow: 0 10px 25px rgba(0,0,0,0.12);
+    transform: translateY(-3px);
+}
+
+/* Add a badge to indicate specific mouse data */
+.comparing-specific-mice .gender-card h3::after {
+    content: "Selected";
+    display: inline-block;
+    font-size: 0.7rem;
+    background-color: rgba(52, 152, 219, 0.2);
+    color: #2980b9;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-left: 8px;
+    font-weight: normal;
+    vertical-align: middle;
+}
+
+/* Special styling for the female mouse badge */
+.comparing-specific-mice .female-card h3::after {
+    background-color: rgba(231, 76, 60, 0.2);
+    color: #c0392b;
+}
