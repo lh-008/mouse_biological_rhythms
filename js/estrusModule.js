@@ -124,11 +124,8 @@ const estrusModule = (function() {
         // Clear previous chart
         chartContainer.innerHTML = "";
         
-        // Load data
         loadEstrusData().then(data => {
             const hourlyData = data.hourlyData;
-            
-            // Create SVG
             const margin = {top: 30, right: 60, bottom: 60, left: 60};
             const width = chartContainer.clientWidth - margin.left - margin.right;
             const height = 450 - margin.top - margin.bottom;
@@ -453,8 +450,8 @@ function createEstrusBarCharts() {
             d3.select("#estrusActivityChart").parent()
                 .insert("div", "#estrusActivityChart")
                 .attr("id", "estrus-title-container")
-                .style("padding-top", "30px")    // Add space above the title
-                .style("padding-bottom", "40px") // Add space below the title
+                .style("padding-top", "30px")
+                .style("padding-bottom", "40px")
                 .style("text-align", "center")
                 .append("h2")
                 .attr("class", "section-title")
@@ -530,9 +527,9 @@ function createBarChart(config) {
     const x = d3.scaleBand()
         .domain(data.map(d => d.condition))
         .range([0, width])
-        .padding(0.4);  // Increased padding for wider bars
+        .padding(0.4);
     
-    // Y scale with adjusted domain to match visualization
+    // Y scale with adjusted domain
     const yMax = valueField === 'avgTemp' 
         ? Math.max(40, d3.max(data, d => d[valueField]) * 1.05) 
         : Math.max(30, d3.max(data, d => d[valueField]) * 1.2);
