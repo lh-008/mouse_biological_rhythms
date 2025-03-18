@@ -17,7 +17,6 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Function to update navigation and animations based on scroll position
     function updateOnScroll() {
-        // Update scroll progress bar
         const scrollPosition = window.scrollY;
         const totalHeight = document.body.scrollHeight - window.innerHeight;
         const scrollPercentage = (scrollPosition / totalHeight) * 100;
@@ -91,8 +90,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    
-    // Initialize scrollytelling
     function init() {
         // Add initial visible class to elements at the top
         document.querySelectorAll('.scrolly-section:first-of-type .narrative, .scrolly-section:first-of-type .visualization-container').forEach(el => {
