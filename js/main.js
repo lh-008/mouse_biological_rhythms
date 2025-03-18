@@ -8,7 +8,6 @@
     
     async function init() {
         try {    
-        // Initialize mouse simulation
         window.mouseSimulation.init();
         
         // Preload data
@@ -241,7 +240,7 @@
         }
     }
     
-    // Handle window resize - Complete, merged version
+    // Handle window resize
     function handleResize() {
         // Redraw charts when window is resized
         window.chartsModule.createSeparateCharts();
